@@ -1,4 +1,5 @@
 import lsdb2
+import db_lib
 import ispyb.factory
 from datetime import datetime
 import sys
@@ -22,69 +23,81 @@ with ispyb.open(conf_file) as conn:
   for request in request_dicts:
      request_type = request['request_type']
 
-     # We're only interested in standard requests for now .....
+     # We're only interested in standard and vector requests for now .....
      if request_type in('standard', 'vector') :
          sample = request['sample'] # this needs to be created and linked to a DC group
 
-         request_obj = request['request_obj']
+         #request_obj = request['request_obj']
 
-         # Create a new data collection group entry:
-         params = mxacquisition.get_data_collection_group_params()
-         params['parentid'] = sessionid
-         # params['sampleid'] = ?
-         if request_type == 'standard':
-             params['experimenttype'] = 'OSC'
-         elif request_type == 'vector':
-             params['experimenttype'] = 'Helical'
+         reqres = db_lib.getResultsforRequest(request['uid'])
 
-         params['starttime'] = datetime.utcfromtimestamp(request['time']).strftime('%Y-%m-%d %H:%M:%S')
-         params['endtime'] = datetime.utcfromtimestamp(request['time']).strftime('%Y-%m-%d %H:%M:%S')
-         dcg_id = mxacquisition.insert_data_collection_group(list(params.values()))
-         print("dcg_id: %i" % dcg_id)
+         for result in reqres:
+             if result['result_type'] = 'mxExpParams':
+                 result_obj = result['result_obj']
 
-         params = mxacquisition.get_data_collection_params()
-         params['parentid'] = dcg_id
-         params['visitid'] = sessionid
-         params['imgdir'] = request_obj['directory']
-         params['imgprefix'] = request_obj['file_prefix']
-         params['imgsuffix'] = 'cbf' # assume CBF ...?
-         params['wavelength'] = request_obj['wavelength']
-         params['starttime'] = datetime.utcfromtimestamp(request['time']).strftime('%Y-%m-%d %H:%M:%S')
+                 # Create a new data collection group entry:
+                 params = mxacquisition.get_data_collection_group_params()
+                 params['parentid'] = sessionid
+                 # params['sampleid'] = ?
+                 if request_type == 'standard':
+                     params['experimenttype'] = 'OSC'
+                 elif request_type == 'vector':
+                     params['experimenttype'] = 'Helical'
 
-         params['run_status'] = 'DataCollection Successful' # assume success / not aborted
-         params['datacollection_number'] = request_obj['runNum']
-         params['n_images'] = int(round((request_obj['sweep_end'] - request_obj['sweep_start']) / request_obj['img_width']))
-         params['exp_time'] = request_obj['exposure_time']
-         params['start_image_number'] = request_obj['file_number_start']
+                 params['starttime'] = datetime.utcfromtimestamp(request['time']).strftime('%Y-%m-%d %H:%M:%S')
+                 params['endtime'] = datetime.utcfromtimestamp(request['time']).strftime('%Y-%m-%d %H:%M:%S')
+                 dcg_id = mxacquisition.insert_data_collection_group(list(params.values()))
+                 print("dcg_id: %i" % dcg_id)
 
-         params['axis_start'] = request_obj['sweep_start']
-         params['axis_end'] = request_obj['sweep_end']
-         params['axis_range'] = request_obj['img_width']
-         params['resolution'] = request_obj['resolution']
+                 params = mxacquisition.get_data_collection_params()
+                 params['parentid'] = dcg_id
+                 params['visitid'] = sessionid
+                 params['imgdir'] = result_obj['directory']
+                 params['imgprefix'] = result_obj['file_prefix']
+                 params['imgsuffix'] = 'cbf' # assume CBF ...?
+                 params['wavelength'] = result_obj['wavelength']
+                 params['starttime'] = datetime.utcfromtimestamp(request['time']).strftime('%Y-%m-%d %H:%M:%S')
 
-         params['detector_distance'] = request_obj['detDist']
-         params['slitgap_horizontal'] = request_obj['slit_width']
-         params['slitgap_vertical'] = request_obj['slit_height']
+                 params['run_status'] = 'DataCollection Successful' # assume success / not aborted
+                 params['datacollection_number'] = result_obj['runNum']
+                 params['n_images'] = int(round((result_obj['sweep_end'] - result_obj['sweep_start']) / result_obj['img_width']))
+                 params['exp_time'] = result_obj['exposure_time']
+                 params['start_image_number'] = result_obj['file_number_start']
 
-         params['transmission'] = request_obj['attenuation']
+                 params['axis_start'] = result_obj['sweep_start']
+                 params['axis_end'] = result_obj['sweep_end']
+                 params['axis_range'] = result_obj['img_width']
+                 params['resolution'] = result_obj['resolution']
 
-         # params['file_template'] = ?
+                 params['detector_distance'] = result_obj['detDist']
+                 params['slitgap_horizontal'] = result_obj['slit_width']
+                 params['slitgap_vertical'] = result_obj['slit_height']
 
-         # params['flux'] = ?
-         # params['overlap'] = ?
-         # params['xbeam'] = ?
-         # params['ybeam'] = ?
-         # params['beamsize_at_samplex'] = ?
-         # params['beamsize_at_sampley'] = ?
-         # params['rotation_axis'] = ?
-         # params['phistart'] = ?
-         # params['kapppastart'] = ?
-         # params['omegastart'] = ?
+                 params['transmission'] = result_obj['attenuation']
 
-         params['xtal_snapshot1'] = '/dls/i03/data/2016/cm14451-2/jpegs/20160413/test_xtal/xtal1_1_1_0.0.png'
-         params['xtal_snapshot2'] = '/dls/i03/data/2016/cm14451-2/jpegs/20160413/test_xtal/xtal1_1_1_90.0.png'
-         params['xtal_snapshot3'] = '/dls/i03/data/2016/cm14451-2/jpegs/20160413/test_xtal/xtal1_3_1_183.0.png'
-         params['xtal_snapshot4'] = '/dls/i03/data/2016/cm14451-2/jpegs/20160413/test_xtal/xtal1_3_1_93.0.png'
+                 # params['file_template'] = ?
 
-         dc_id = mxacquisition.insert_data_collection(list(params.values()))
-         print("dc_id: %i" % dc_id)
+                 # params['flux'] = ?
+
+                 # hack to make SynchWeb understand whether it's a full data collection or a screening
+                 if request_type != 'screening':
+                     params['overlap'] = 0.1
+                 else:
+                     params['overlap'] = 0.0
+
+                 # params['xbeam'] = ?
+                 # params['ybeam'] = ?
+                 # params['beamsize_at_samplex'] = ?
+                 # params['beamsize_at_sampley'] = ?
+                 # params['rotation_axis'] = ?
+                 # params['phistart'] = ?
+                 # params['kapppastart'] = ?
+                 # params['omegastart'] = ?
+
+                 params['xtal_snapshot1'] = '/dls/i03/data/2016/cm14451-2/jpegs/20160413/test_xtal/xtal1_1_1_0.0.png'
+                 params['xtal_snapshot2'] = '/dls/i03/data/2016/cm14451-2/jpegs/20160413/test_xtal/xtal1_1_1_90.0.png'
+                 params['xtal_snapshot3'] = '/dls/i03/data/2016/cm14451-2/jpegs/20160413/test_xtal/xtal1_3_1_183.0.png'
+                 params['xtal_snapshot4'] = '/dls/i03/data/2016/cm14451-2/jpegs/20160413/test_xtal/xtal1_3_1_93.0.png'
+
+                 dc_id = mxacquisition.insert_data_collection(list(params.values()))
+                 print("dc_id: %i" % dc_id)

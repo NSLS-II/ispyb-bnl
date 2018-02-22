@@ -27,13 +27,13 @@ with ispyb.open(conf_file) as conn:
      if request_type in('standard', 'vector') :
          sample = request['sample'] # this needs to be created and linked to a DC group
 
-         #request_obj = request['request_obj']
 
          reqres = db_lib.getResultsforRequest(request['uid'])
 
          for result in reqres:
-             if result['result_type'] = 'mxExpParams':
+             if result['result_type'] == 'mxExpParams':
                  result_obj = result['result_obj']
+                 request_obj = result_obj['requestObj']
 
                  # Create a new data collection group entry:
                  params = mxacquisition.get_data_collection_group_params()
@@ -52,36 +52,36 @@ with ispyb.open(conf_file) as conn:
                  params = mxacquisition.get_data_collection_params()
                  params['parentid'] = dcg_id
                  params['visitid'] = sessionid
-                 params['imgdir'] = result_obj['directory']
-                 params['imgprefix'] = result_obj['file_prefix']
+                 params['imgdir'] = request_obj['directory']
+                 params['imgprefix'] = request_obj['file_prefix']
                  params['imgsuffix'] = 'cbf' # assume CBF ...?
-                 params['wavelength'] = result_obj['wavelength']
+                 params['wavelength'] = request_obj['wavelength']
                  params['starttime'] = datetime.utcfromtimestamp(request['time']).strftime('%Y-%m-%d %H:%M:%S')
 
                  params['run_status'] = 'DataCollection Successful' # assume success / not aborted
-                 params['datacollection_number'] = result_obj['runNum']
-                 params['n_images'] = int(round((result_obj['sweep_end'] - result_obj['sweep_start']) / result_obj['img_width']))
-                 params['exp_time'] = result_obj['exposure_time']
-                 params['start_image_number'] = result_obj['file_number_start']
+                 params['datacollection_number'] = request_obj['runNum']
+                 params['n_images'] = int(round((request_obj['sweep_end'] - request_obj['sweep_start']) / request_obj['img_width']))
+                 params['exp_time'] = request_obj['exposure_time']
+                 params['start_image_number'] = request_obj['file_number_start']
 
-                 params['axis_start'] = result_obj['sweep_start']
-                 params['axis_end'] = result_obj['sweep_end']
-                 params['axis_range'] = result_obj['img_width']
-                 params['resolution'] = result_obj['resolution']
+                 params['axis_start'] = request_obj['sweep_start']
+                 params['axis_end'] = request_obj['sweep_end']
+                 params['axis_range'] = request_obj['img_width']
+                 params['resolution'] = request_obj['resolution']
 
-                 params['detector_distance'] = result_obj['detDist']
-                 params['slitgap_horizontal'] = result_obj['slit_width']
-                 params['slitgap_vertical'] = result_obj['slit_height']
+                 params['detector_distance'] = request_obj['detDist']
+                 params['slitgap_horizontal'] = request_obj['slit_width']
+                 params['slitgap_vertical'] = request_obj['slit_height']
 
-                 params['transmission'] = result_obj['attenuation']
+                 params['transmission'] = request_obj['attenuation']
 
                  # params['file_template'] = ?
 
                  # params['flux'] = ?
 
-                 # hack to make SynchWeb understand whether it's a full data collection or a screening
-                 if request_type != 'screening':
-                     params['overlap'] = 0.1
+                 # hacrd-coding hack to make SynchWeb understand whether it's a full data collection or a screening
+                 if request_type == 'screening':
+                     params['overlap'] = 89.0
                  else:
                      params['overlap'] = 0.0
 

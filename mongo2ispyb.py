@@ -53,17 +53,20 @@ with ispyb.open(conf_file) as conn:
 
          params['run_status'] = 'DataCollection Successful'
          params['datacollection_number'] = request_obj['runNum']
-         params['n_images'] = (request_obj['sweep_end'] - request_obj['sweep_start']) / request_obj['img_width']
+         params['n_images'] = int(round((request_obj['sweep_end'] - request_obj['sweep_start']) / request_obj['img_width']))
          params['exp_time'] = request_obj['exposure_time']
          params['start_image_number'] = request_obj['file_number_start']
 
          params['axis_start'] = request_obj['sweep_start']
          params['axis_end'] = request_obj['sweep_end']
+         params['axis_range'] = request_obj['img_width']
          params['resolution'] = request_obj['resolution']
 
          params['detector_distance'] = request_obj['detDist']
          params['slitgap_horizontal'] = request_obj['slit_width']
          params['slitgap_vertical'] = request_obj['slit_height']
+
+         params['transmission'] = request_obj['attenuation']
 
          dc_id = mxacquisition.insert_data_collection(list(params.values()))
          print("dc_id: %i" % dc_id)

@@ -31,7 +31,7 @@ with ispyb.open(conf_file) as conn:
          # Create a new data collection group entry:
          params = mxacquisition.get_data_collection_group_params()
          params['parentid'] = sessionid
-
+         # params['sampleid'] = ?
          if request_type == 'standard':
              params['experimenttype'] = 'OSC'
          elif request_type == 'vector':
@@ -51,7 +51,7 @@ with ispyb.open(conf_file) as conn:
          params['wavelength'] = request_obj['wavelength']
          params['starttime'] = datetime.utcfromtimestamp(request['time']).strftime('%Y-%m-%d %H:%M:%S')
 
-         params['run_status'] = 'DataCollection Successful'
+         params['run_status'] = 'DataCollection Successful' # assume success / not aborted
          params['datacollection_number'] = request_obj['runNum']
          params['n_images'] = int(round((request_obj['sweep_end'] - request_obj['sweep_start']) / request_obj['img_width']))
          params['exp_time'] = request_obj['exposure_time']
@@ -67,6 +67,24 @@ with ispyb.open(conf_file) as conn:
          params['slitgap_vertical'] = request_obj['slit_height']
 
          params['transmission'] = request_obj['attenuation']
+
+         # params['file_template'] = ?
+
+         # params['flux'] = ?
+         # params['overlap'] = ?
+         # params['xbeam'] = ?
+         # params['ybeam'] = ?
+         # params['beamsize_at_samplex'] = ?
+         # params['beamsize_at_sampley'] = ?
+         # params['rotation_axis'] = ?
+         # params['phistart'] = ?
+         # params['kapppastart'] = ?
+         # params['omegastart'] = ?
+
+         params['xtal_snapshot1'] = '/dls/i03/data/2016/cm14451-2/jpegs/20160413/test_xtal/xtal1_1_1_0.0.png'
+         params['xtal_snapshot2'] = '/dls/i03/data/2016/cm14451-2/jpegs/20160413/test_xtal/xtal1_1_1_90.0.png'
+         params['xtal_snapshot3'] = '/dls/i03/data/2016/cm14451-2/jpegs/20160413/test_xtal/xtal1_3_1_183.0.png'
+         params['xtal_snapshot4'] = '/dls/i03/data/2016/cm14451-2/jpegs/20160413/test_xtal/xtal1_3_1_93.0.png'
 
          dc_id = mxacquisition.insert_data_collection(list(params.values()))
          print("dc_id: %i" % dc_id)

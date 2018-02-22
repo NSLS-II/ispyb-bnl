@@ -37,8 +37,8 @@ with ispyb.open(conf_file) as conn:
          elif request_type == 'vector':
              params['experimenttype'] = 'Helical'
 
-         params['starttime'] = datetime.utcfromtimestamp(request['time']).strftime('%Y%m%d %H:%M:%S')
-         params['endtime'] = datetime.utcfromtimestamp(request['time']).strftime('%Y%m%d %H:%M:%S')
+         params['starttime'] = datetime.utcfromtimestamp(request['time']).strftime('%Y-%m-%d %H:%M:%S')
+         params['endtime'] = datetime.utcfromtimestamp(request['time']).strftime('%Y-%m-%d %H:%M:%S')
          dcg_id = mxacquisition.insert_data_collection_group(list(params.values()))
          print("dcg_id: %i" % dcg_id)
 
@@ -49,7 +49,7 @@ with ispyb.open(conf_file) as conn:
          params['imgprefix'] = request_obj['file_prefix']
          params['imgsuffix'] = 'cbf' # assume CBF ...?
          params['wavelength'] = request_obj['wavelength']
-         params['starttime'] = datetime.utcfromtimestamp(request['time']).strftime('%Y%m%d %H:%M:%S')
+         params['starttime'] = datetime.utcfromtimestamp(request['time']).strftime('%Y-%m-%d %H:%M:%S')
 
          params['run_status'] = 'DataCollection Successful'
          params['datacollection_number'] = request_obj['runNum']

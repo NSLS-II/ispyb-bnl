@@ -27,7 +27,7 @@ with ispyb.open(conf_file) as conn:
      if request_type in('standard', 'vector') :
          sample = request['sample'] # this needs to be created and linked to a DC group
 
-
+         # Get a dict list of results for the request
          reqres = db_lib.getResultsforRequest(request['uid'])
 
          for result in reqres:
@@ -75,21 +75,25 @@ with ispyb.open(conf_file) as conn:
 
                  params['transmission'] = request_obj['attenuation']
 
-                 # params['file_template'] = ?
+                 params['file_template'] = '%s_%s_####.cbf' % (request_obj['file_prefix'], request_obj['runNum']) # assume cbf ...
 
                  # params['flux'] = ?
 
-                 # hacrd-coding hack to make SynchWeb understand whether it's a full data collection or a screening
+                 # hard-coding hack to make SynchWeb understand whether it's a full data collection or a screening
                  if request_type == 'screening':
                      params['overlap'] = 89.0
                  else:
                      params['overlap'] = 0.0
 
-                 # params['xbeam'] = ?
-                 # params['ybeam'] = ?
+                 params['rotation_axis'] = Omega # assume Omega unless we know otherwise
+
+                 # Beamsize:
                  # params['beamsize_at_samplex'] = ?
                  # params['beamsize_at_sampley'] = ?
-                 # params['rotation_axis'] = ?
+
+                 # Other things:
+                 # params['xbeam'] = ?
+                 # params['ybeam'] = ?
                  # params['phistart'] = ?
                  # params['kapppastart'] = ?
                  # params['omegastart'] = ?

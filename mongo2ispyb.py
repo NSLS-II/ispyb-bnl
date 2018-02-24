@@ -15,6 +15,8 @@ request_dicts = lsdb2.getColRequestsByTimeInterval('2018-02-14T00:00:00','2018-0
 with ispyb.open(conf_file) as conn:
   core = ispyb.factory.create_data_area(ispyb.factory.DataAreaType.CORE, conn)
   mxacquisition = ispyb.factory.create_data_area(ispyb.factory.DataAreaType.MXACQUISITION, conn)
+  mxprocessing = ispyb.factory.create_data_area(ispyb.factory.DataAreaType.MXPROCESSING, conn)
+  mxscreening = ispyb.factory.create_data_area(ispyb.factory.DataAreaType.MXSCREENING, conn)
 
   # Find the id for a particular
   sessionid = core.retrieve_visit_id(visit)
@@ -48,6 +50,21 @@ with ispyb.open(conf_file) as conn:
                  params['endtime'] = datetime.utcfromtimestamp(request['time']).strftime('%Y-%m-%d %H:%M:%S')
                  dcg_id = mxacquisition.insert_data_collection_group(list(params.values()))
                  print("dcg_id: %i" % dcg_id)
+
+                 ## For raster scans a.k.a. grid scans:
+                 # params = mxacquisition.get_dcg_grid_params()
+                 # params['parentid'] = dcg_id
+                 # params['dx_mm'] =
+                 # params['dy_mm'] =
+                 # params['steps_x'] =
+                 # params['steps_y'] =
+                 # params['pixelspermicronx'] =
+                 # params['pixelspermicrony'] =
+                 # params['snapshot_offsetxpixel'] =
+                 # params['snapshot_offsetypixel'] =
+                 # params['orientation'] =
+                 # params['snaked'] =
+                 # mxacquisition.upsert_dcg_grid(list(params.values()))
 
                  params = mxacquisition.get_data_collection_params()
                  params['parentid'] = dcg_id
@@ -105,3 +122,54 @@ with ispyb.open(conf_file) as conn:
 
                  dc_id = mxacquisition.insert_data_collection(list(params.values()))
                  print("dc_id: %i" % dc_id)
+
+                 ## For strategies (EDNA or otherwise)
+                 # params = mxscreening.get_screening_params()
+                 # params['dcgid'] = dcg_id
+                 # ...
+                 # s_id = mxscreening.insert_screening(list(params.values()))
+                 # params = mxscreening.get_screening_input_params()
+                 # params['screening_id'] = s_id
+                 # ...
+                 # s_in_id = mxscreening.insert_screening_input(list(params.values()))
+                 # params = mxscreening.get_screening_output_params()
+                 # params['screening_id'] = s_id
+                 # ...
+                 # s_out_id = mxscreening.insert_screening_output(list(params.values()))
+                 # params = mxscreening.get_screening_output_lattice_params()
+                 # params['screening_output_id'] = s_out_id
+                 # ...
+                 # mxscreening.insert_screening_output_lattice(list(params.values()))
+
+                 # params = mxscreening.get_screening_strategy_params()
+                 # params['screening_output_id'] = s_out_id
+                 # ...
+                 # s_s_id = mxscreening.insert_screening_strategy(list(params.values()))
+                 # params = mxscreening.get_screening_strategy_wedge_params()
+                 # params['screening_strategy_id'] = s_s_id
+                 # ...
+                 # s_s_wedge_id = mxscreening.insert_screening_strategy_wedge(list(params.values()))
+                 # params = mxscreening.get_screening_strategy_sub_wedge_params()
+                 # params['screening_strategy_wedge_id'] = s_s_wedge_id
+                 # ...
+                 # mxscreening.insert_screening_strategy_sub_wedge(list(params.values()))
+
+                 ## For raster scans a.k.a. grid scans:
+                 # params = mxacquisition.get_dc_position_params()
+                 # params['id'] = dc_id
+                 # params['posx'] =
+                 # params['posy'] =
+                 # params['posz'] =
+                 # mxacquisition.update_dc_position(list(params.values()))
+
+                 ## For per-image analysis results (raster scans or otherwise)
+                 # for image in images:
+                 #     params = mxprocessing.get_quality_indicators_params()
+                 #     imq.imagenumber as nim, imq.method2res as res, imq.spottotal as s, imq.totalintegratedsignal, imq.goodbraggcandidates as b
+                 #     params['imagenumber'] =
+                 #     params['datacollectionid'] =
+                 #     params['method2res'] =
+                 #     params['spottotal'] =
+                 #     params['totalintegratedsignal'] =
+                 #     params['goodbraggcandidates'] =
+                 #     mxprocessing.upsert_quality_indicators(list(params.values()))

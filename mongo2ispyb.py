@@ -3,6 +3,8 @@ import db_lib
 import ispyb.factory
 from datetime import datetime
 import sys
+from ispyb.xmltools import mx_data_reduction_to_ispyb, xml_file_to_dict
+
 
 conf_file = 'config.cfg'
 # visit = sys.argv[1]
@@ -173,3 +175,7 @@ with ispyb.open(conf_file) as conn:
                  #     params['totalintegratedsignal'] =
                  #     params['goodbraggcandidates'] =
                  #     mxprocessing.upsert_quality_indicators(list(params.values()))
+
+                 ## For fast_dp and similar MX data reduction pipeline results:
+                 # ...
+                 # (app_id, ap_id, scaling_id, integration_id) = mx_data_reduction_to_ispyb(mx_data_reduction_dict, dc_id, mxprocessing)
